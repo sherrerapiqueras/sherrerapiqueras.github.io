@@ -88,6 +88,17 @@ html[data-theme='light'] {
   color-scheme: light;
 }
 
+/*
+ * Breakpoints. The handoff specifies two (900px to stack two-column grids,
+ * 600px to drop the ticker); those are kept as the tier boundaries. 700px is
+ * added for the three-up grids, which still read well on a tablet and would
+ * otherwise waste most of the width on a single column.
+ *
+ *   >= 900px   desktop   the full 1120px design
+ *   600-899    tablet    card unsplits, three-up grids survive to 700
+ *   < 600px    phone     ticker hidden, header wraps, everything single column
+ */
+
 :root {
   --page-max: 1120px;
   --page-pad: 56px;
@@ -243,6 +254,22 @@ html[data-theme-switching] *::after {
 
 @media (max-width: 900px) {
   :root {
-    --page-pad: 24px;
+    --page-pad: 32px;
+    --header-h: 45px;
   }
 }
+
+@media (max-width: 600px) {
+  :root {
+    --page-pad: 20px;
+    /* Two rows on phones — see Header.astro. */
+    --header-h: 76px;
+  }
+}
+
+/*
+ * Touch hit areas. The design's 11px chrome yields ~15px tall links, well under
+ * the 44px comfortable-target guidance. Each component grows its own targets
+ * with padding under `@media (pointer: coarse)` — padding rather than font size,
+ * so the type stays exactly as the handoff specifies.
+ */

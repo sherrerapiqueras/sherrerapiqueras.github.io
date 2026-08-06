@@ -335,25 +335,38 @@ const meta = [
 
   /* ------------------------------------------------------- responsive --- */
 
+  /* The screenshot panel needs 400px; below 900 the card unsplits and the shots
+     move under the detail rather than beside it. */
   @media (max-width: 900px) {
     .split {
       grid-template-columns: 1fr;
     }
 
     .main {
-      padding: 24px 20px;
+      padding: 26px 24px;
       border-right: 0;
       border-bottom: 1px solid var(--line);
     }
 
     .title-row h3 {
-      font-size: 32px;
+      font-size: 34px;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .main {
+      padding: 22px 18px;
+    }
+
+    .title-row h3 {
+      font-size: 30px;
     }
 
     .meta {
       grid-template-columns: repeat(2, 1fr);
     }
 
+    /* Tag and date on one row, the note wrapping full width beneath. */
     .log-rows li {
       grid-template-columns: 68px 1fr;
       row-gap: 4px;
@@ -361,6 +374,26 @@ const meta = [
 
     .log-rows .note {
       grid-column: 1 / -1;
+    }
+
+    .shots {
+      gap: 12px;
+      padding: 22px 18px;
+    }
+
+    .shot.offset {
+      margin-top: 20px;
+    }
+
+    .shot :global(img) {
+      width: 100%;
+      max-width: 168px;
+    }
+  }
+
+  @media (pointer: coarse) {
+    .link {
+      min-height: 44px;
     }
   }
 </style>

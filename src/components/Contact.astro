@@ -119,16 +119,49 @@ const version = pkg.version;
 
   @media (max-width: 900px) {
     .slab {
-      padding: 28px 24px;
-      gap: 22px;
+      padding: 30px 26px;
+      gap: 24px;
     }
 
+    /* The address is the one thing this section exists for — let it scale down
+       to fit rather than wrap mid-word or overflow. */
     .email {
-      font-size: 22px;
+      font-size: clamp(17px, 4.4vw, 34px);
     }
 
     .socials {
       text-align: left;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .slab {
+      padding: 24px 20px;
+      gap: 18px;
+    }
+
+    .prompt {
+      margin-bottom: 10px;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+    }
+
+    .footer {
+      gap: 6px;
+    }
+  }
+
+  @media (pointer: coarse) {
+    .email,
+    .socials a,
+    .footer a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+
+    .socials {
+      gap: 0;
     }
   }
 </style>

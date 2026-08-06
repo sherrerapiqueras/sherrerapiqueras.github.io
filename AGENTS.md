@@ -67,6 +67,33 @@ scripts/         make-og.mjs — regenerates the social card
   `--magFill`.
 - **`releaseCount` is live, not 32.** The design prototype hardcoded 32 and never refreshed it. The
   real count comes from the API.
+- **Flex containers eat whitespace between items.** The header's touch-target rules turn `.nav a`
+  and `.toggle` into flex containers on touch devices, which silently collapsed `01 /index` into
+  `01/index` and `EN / ES` into `EN/ES`. Spacing there comes from `gap: 1ch` and `margin-inline`,
+  never from literal spaces in the markup.
+- **The header height is measured, not hardcoded.** `--header-h` drives `scroll-margin-top` for the
+  anchors, and the real height varies with breakpoint, pointer type and whether the header is
+  sticky at all. A script in `Header.astro` sets it from `offsetHeight`. The CSS values are only a
+  no-JS fallback. The original hardcoded 41px was wrong at every breakpoint — the header is ~50px.
+
+## Responsive
+
+Three tiers, verified at 375 / 768 / 1024 / 1440:
+
+- **>= 900px** — the full 1120px design.
+- **600-899px** — the project card unsplits (the screenshot panel needs 400px). Three-up and
+  two-up grids survive down to 700px; a tablet has the width for them.
+- **< 600px** — single column, ticker hidden, CTAs full width, header **not sticky**.
+
+The header is static on phones on purpose: two rows of controls with 44px touch targets is ~105px,
+and pinning that costs 13% of an 812px screen for the entire scroll.
+
+Touch targets are >= 44px under `@media (pointer: coarse)`, grown with padding and `min-height` so
+the type stays exactly as the handoff specifies. Do not use negative margins to claw the space
+back — that made nav links overlap the toggles above them.
+
+Check any layout change for horizontal overflow (`documentElement.scrollWidth > clientWidth`) at
+375px. That is how the pre-fix header overflow showed up.
 
 ## Design spec
 

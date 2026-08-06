@@ -46,7 +46,7 @@ const other = otherLang(lang);
       aria-label={t('a11y.langToggle')}
       data-lang-target={other}
     >
-      <span class:list={{ active: lang === 'en' }}>EN</span><span class="slash"> / </span><span
+      <span class:list={{ active: lang === 'en' }}>EN</span><span class="slash">/</span><span
         class:list={{ active: lang === 'es' }}>ES</span
       >
     </a>
@@ -89,6 +89,23 @@ const other = otherLang(lang);
       /* private mode — the choice just will not persist */
     }
   });
+
+  /*
+   * Keep the anchor scroll offset matched to the real header.
+   * Its height varies with breakpoint, pointer type (44px touch targets) and
+   * whether it is sticky at all, which is four media-query combinations to
+   * keep in sync by hand. Measuring is both shorter and always correct.
+   */
+  const header = document.querySelector<HTMLElement>('.header');
+  if (header) {
+    const setOffset = () => {
+      const sticky = getComputedStyle(header).position === 'sticky';
+      root.style.setProperty('--header-h', sticky ? `${header.offsetHeight + 8}px` : '12px');
+    };
+    setOffset();
+    new ResizeObserver(setOffset).observe(header);
+    window.addEventListener('resize', setOffset);
+  }
 
   // Remember an explicitly chosen locale for the redirect in Base.astro.
   document.getElementById('lang-toggle')?.addEventListener('click', (event) => {
@@ -136,7 +153,16 @@ const other = otherLang(lang);
     color: var(--muted);
   }
 
+  /*
+   * inline-flex with an explicit gap rather than relying on the literal space
+   * in the markup: the touch-target rules below turn this into a flex
+   * container, and flex discards whitespace between items — which silently
+   * turned "01 /index" into "01/index" on touch devices.
+   */
   .nav a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 1ch;
     text-decoration: none;
     white-space: nowrap;
     transition: color 120ms ease;
@@ -178,8 +204,10 @@ const other = otherLang(lang);
     text-align: center;
   }
 
+  /* Margin, not literal spaces around the glyph — see the note on .nav a. */
   .slash {
     color: var(--faint);
+    margin-inline: 0.5ch;
   }
 
   /* The current locale is the one not linked to; dim it so the link reads. */
@@ -191,6 +219,8 @@ const other = otherLang(lang);
     color: var(--faint);
   }
 
+  /* Tablet: the prompt is the first thing that can go — nav and toggles are
+     both functional, the prompt is flavour. */
   @media (max-width: 900px) {
     .header {
       gap: 12px;
@@ -202,17 +232,77 @@ const other = otherLang(lang);
     }
 
     .nav {
-      gap: 14px;
+      gap: 16px;
     }
   }
 
+  /*
+   * Phone: nav (322px) + toggles (153px) cannot share a 375px row — that
+   * combination overflowed the viewport and produced horizontal scroll. So the
+   * header becomes two rows: controls on top, nav spread edge-to-edge below.
+   * Both stay reachable, and nothing is hidden.
+   */
   @media (max-width: 600px) {
-    .nav a {
-      font-size: 11px;
+    /*
+     * Not sticky on phones. Two rows of controls with 44px touch targets comes
+     * to ~105px, and pinning that to the top of an 812px screen costs 13% of
+     * the viewport for the whole scroll. Letting it scroll away keeps both the
+     * nav and the toggles without taxing every other screenful; theme and
+     * language are set-once choices, so having them at the top is no loss.
+     */
+    .header {
+      position: static;
+      flex-wrap: wrap;
+      gap: 0 12px;
+      padding: 8px 20px;
     }
 
-    .nav .path {
-      display: none;
+    .toggles {
+      margin-left: auto;
+    }
+
+    .nav {
+      order: 3;
+      width: 100%;
+      justify-content: space-between;
+      gap: 4px;
+      font-size: 11px;
+    }
+  }
+
+  /* Below ~360px the four paths stop fitting even edge-to-edge. */
+  @media (max-width: 360px) {
+    .nav {
+      font-size: 10px;
+    }
+
+    .toggle {
+      letter-spacing: 0.03em;
+    }
+
+    #theme-toggle {
+      min-width: 66px;
+    }
+  }
+
+  /*
+   * Touch targets. No negative margins here: pulling the hit area back out of
+   * flow made the nav links overlap the toggles sitting directly above them on
+   * the phone layout, so a tap near the row edge hit the wrong control. The
+   * header is simply allowed to be taller on touch devices.
+   */
+  @media (pointer: coarse) {
+    .nav a {
+      align-items: center;
+      min-height: 44px;
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding-block: 0;
     }
   }
 </style>

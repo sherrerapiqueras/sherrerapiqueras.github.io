@@ -67,18 +67,42 @@ const stats = [
     color: var(--dim);
   }
 
+  /* Three-up survives to 700px: the numbers stay scannable and a single column
+     of three stats would eat most of a tablet screen. */
   @media (max-width: 900px) {
+    .cell,
+    .cell:first-child {
+      padding: 22px 20px;
+    }
+
+    .value {
+      font-size: 44px;
+    }
+  }
+
+  @media (max-width: 700px) {
     .stats {
       grid-template-columns: 1fr;
     }
 
     .cell,
     .cell:first-child {
-      padding: 20px var(--page-pad);
+      padding: 18px var(--page-pad);
     }
 
     .value {
-      font-size: 44px;
+      font-size: 40px;
+    }
+
+    /* Side by side once stacked, so three stats do not become three screens. */
+    .cell {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+    }
+
+    .label {
+      margin-top: 0;
     }
   }
 </style>

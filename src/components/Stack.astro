@@ -164,14 +164,26 @@ const credentials = [
     color: var(--muted);
   }
 
+  /* Two-up holds to 700px — these are short two-line blocks, not prose. */
   @media (max-width: 900px) {
+    .columns {
+      gap: 32px;
+    }
+  }
+
+  @media (max-width: 700px) {
     .blocks,
     .columns {
       grid-template-columns: 1fr;
     }
 
     .columns {
-      gap: 34px;
+      gap: 30px;
+      margin-top: 28px;
+    }
+
+    .block {
+      padding: 18px 20px;
     }
   }
 </style>
