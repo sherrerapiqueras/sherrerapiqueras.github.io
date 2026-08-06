@@ -114,10 +114,35 @@ Types: `feat`, `fix`, `content`, `docs`, `style`, `refactor`, `perf`, `test`, `c
 
 Branch off `main`, never commit to `main` directly.
 
+## Tests
+
+```bash
+npm test            # vitest run
+npm run test:watch
+```
+
+`tests/` covers the parts that fail quietly rather than loudly:
+
+- **`github.test.ts`** — every way the GitHub API can misbehave (403/404/500, offline, timeout,
+  non-JSON, object-instead-of-array, empty list, drafts only). The contract is that
+  `fetchReleases` **never rejects** and returns `null` so the caller falls back.
+- **`refresh-releases.test.ts`** — the client refresh against a DOM. Every failure must leave the
+  server-rendered markup byte-for-byte identical, cloned rows must keep Astro's `data-astro-cid-*`
+  attribute, and hostile release notes must land as text, never markup.
+- **`i18n.test.ts`** — key parity across locales, `/esoteric` not detected as Spanish, no phone
+  number in site copy.
+- **`projects.test.ts`** — registry invariants, so a half-added project fails here instead of
+  rendering a broken card.
+
+When adding a test, check it can actually fail: break the source, confirm it goes red, restore.
+The 403/404/500 cases originally passed with the `res.ok` check deleted, because the stubs returned
+an empty body that was rejected further down — green for the wrong reason. Error stubs now return a
+body that would be perfectly valid on a 200.
+
 ## Before you open a PR
 
 ```bash
-npm run format && npm run check && npm run build
+npm run format && npm run check && npm test && npm run build && npm run check:csp
 ```
 
 Then check the result at 1280px, 900px and 600px, in both themes and both locales.

@@ -40,6 +40,9 @@ jobs:
       - name: Type-check and validate templates
         run: npm run check
 
+      - name: Unit tests
+        run: npm test
+
       - name: Build
         env:
           # Lifts the unauthenticated GitHub API rate limit for the build-time

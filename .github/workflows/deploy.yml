@@ -43,6 +43,9 @@ jobs:
       - name: Type-check and validate templates
         run: npm run check
 
+      - name: Unit tests
+        run: npm test
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
