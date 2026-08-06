@@ -79,6 +79,14 @@ const credentials = [
     margin-bottom: 24px;
   }
 
+  .stack {
+    /* Horizontal padding inside a block cell, and the distance the cell's text
+       sits from the grid's outer edge (that padding plus the 1px border).
+       `.columns` below uses the inset to line up with the block labels. */
+    --block-pad: 22px;
+    --block-inset: calc(var(--block-pad) + 1px);
+  }
+
   .blocks {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -89,7 +97,7 @@ const credentials = [
 
   .block {
     background: var(--bg);
-    padding: 20px 22px;
+    padding: 20px var(--block-pad);
   }
 
   .block-label {
@@ -106,10 +114,21 @@ const credentials = [
     color: var(--fg2);
   }
 
+  /*
+   * Inset to match the block cells above, so WHERE I'VE SHIPPED lines up with
+   * BACK-END rather than sitting 23px to its left.
+   *
+   * The right-hand label already aligned before this, by coincidence: the
+   * design's 44px gap happens to equal the two 22px cell paddings plus the 1px
+   * divider. One label lining up and the other not is what made the block look
+   * off. The gap absorbs the extra 1px of border so the right column and the
+   * right edge both stay exactly where the design put them.
+   */
   .columns {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 44px;
+    gap: calc(44px + 1px);
+    padding-inline: var(--block-inset);
     margin-top: 34px;
   }
 
@@ -164,14 +183,15 @@ const credentials = [
     color: var(--muted);
   }
 
-  /* Two-up holds to 700px — these are short two-line blocks, not prose. */
-  @media (max-width: 900px) {
-    .columns {
-      gap: 32px;
-    }
-  }
+  /* Two-up holds to 700px — these are short two-line blocks, not prose.
+     The gap is deliberately not reduced here: it is what keeps the right-hand
+     column aligned with the block above it. */
 
   @media (max-width: 700px) {
+    .stack {
+      --block-pad: 20px;
+    }
+
     .blocks,
     .columns {
       grid-template-columns: 1fr;
@@ -183,7 +203,7 @@ const credentials = [
     }
 
     .block {
-      padding: 18px 20px;
+      padding: 18px var(--block-pad);
     }
   }
 </style>
