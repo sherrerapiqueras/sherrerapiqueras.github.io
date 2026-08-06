@@ -25,6 +25,6 @@ jobs:
       # other workflows, so the release commit will not itself fire a deploy.
       # That is fine here — the deploy runs on the merge of the release PR,
       # which is a normal push to main.
-      - uses: googleapis/release-please-action@v5
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
