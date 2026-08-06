@@ -1,0 +1,49 @@
+# Security Policy
+
+## Reporting a vulnerability
+
+- **Preferred:** GitHub's private vulnerability reporting, from this repository's **Security** tab.
+- **Fallback:** email `sherrerapiqueras@gmail.com`.
+- Please do not open a public issue for a security problem.
+- Expect an acknowledgement within 48 hours.
+
+## Scope
+
+This is a static site. There is no server, no database, no authentication, and no user input. The
+realistic risk surface is small and mostly limited to the build pipeline and the third-party data
+this site reads.
+
+In scope: anything that would let someone alter what gets published, exfiltrate a build secret, or
+inject content into a visitor's browser.
+
+Out of scope: findings that require a compromised GitHub account, missing headers GitHub Pages does
+not let this repo set, and reports about the linked CV or personal contact details being public —
+they are published on purpose.
+
+## Standing rules for changes (human or AI)
+
+**Secrets.** No tokens, keys or credentials in the repo, ever — not in source, not in workflow
+files, not in `public/`. The only secret this project uses is the workflow-scoped `GITHUB_TOKEN`,
+which is injected at build time to lift the GitHub API rate limit. It must never be referenced from
+client-side code. CI greps `dist/` for token material as a backstop, but that is a net, not a plan.
+
+**Third-party data.** The GitHub API response is untrusted input. It is rendered with `textContent`
+and Astro's default escaping — never `innerHTML`, never `set:html`, never `eval`. A release note is
+attacker-influenceable by anyone who can cut a release in a tracked repo, so treat it as hostile
+text. `set:html` is used in exactly one place, `Base.astro`, on `JSON.stringify` output of an
+object this repo controls; do not extend that pattern to anything fetched.
+
+**Dependencies.** Pinned by `package-lock.json`; install with `npm ci`. Dependabot proposes updates
+weekly. Prefer maintained, mainstream packages, and do not add a dependency to save a few lines of
+vanilla code — every client-side dependency on a static site is pure downside.
+
+**Third-party requests.** The site makes no external requests at runtime other than the GitHub API
+call. Fonts are self-hosted precisely so there is no third-party font request. Do not add
+analytics, tag managers, embedded widgets or CDN-hosted assets without deciding that trade-off
+deliberately.
+
+**Workflow permissions.** Workflows declare `permissions: contents: read` at the top level and
+escalate per-job only where genuinely needed (`pages: write` + `id-token: write` to deploy,
+`contents: write` + `pull-requests: write` for release-please). Do not widen the top-level grant.
+
+**Links.** External links use `rel="noopener"`. Anything with `target="_blank"` must have it.

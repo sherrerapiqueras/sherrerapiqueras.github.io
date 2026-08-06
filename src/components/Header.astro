@@ -1,0 +1,218 @@
+---
+import { shared, type Lang } from '../i18n/ui';
+import { localizedPath, otherLang, useTranslations } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const other = otherLang(lang);
+---
+
+<header class="header">
+  <span class="prompt">
+    {shared.prompt}<span class="colon">:~</span>$ <span class="cmd">whoami</span>
+  </span>
+
+  <nav class="nav" aria-label={t('a11y.mainNav')}>
+    {
+      shared.nav.map((item) => (
+        <a href={item.href}>
+          <span class="num">{item.num}</span> {item.path}
+        </a>
+      ))
+    }
+  </nav>
+
+  <div class="toggles">
+    <button
+      id="theme-toggle"
+      type="button"
+      class="toggle bordered"
+      data-label-dark={t('theme.dark')}
+      data-label-light={t('theme.light')}
+      data-a11y-to-light={t('a11y.themeToggle')}
+      data-a11y-to-dark={t('a11y.themeToggleToDark')}>{t('theme.dark')}</button
+    >
+
+    <a
+      id="lang-toggle"
+      class="toggle bordered"
+      href={localizedPath(other)}
+      hreflang={other}
+      lang={other}
+      aria-label={t('a11y.langToggle')}
+      data-lang-target={other}
+    >
+      <span class:list={{ active: lang === 'en' }}>EN</span><span class="slash"> / </span><span
+        class:list={{ active: lang === 'es' }}>ES</span
+      >
+    </a>
+  </div>
+</header>
+
+<script>
+  const root = document.documentElement;
+  const button = document.getElementById('theme-toggle');
+
+  function paint(theme: string) {
+    if (!button) return;
+    const dark = theme === 'dark';
+    button.textContent = dark
+      ? (button.dataset.labelDark ?? '')
+      : (button.dataset.labelLight ?? '');
+    // The label names the current theme, so the accessible name must name the action.
+    button.setAttribute(
+      'aria-label',
+      (dark ? button.dataset.a11yToLight : button.dataset.a11yToDark) ?? '',
+    );
+  }
+
+  paint(root.dataset.theme ?? 'dark');
+
+  button?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+
+    // Suppress hover transitions for the duration of the swap (see global.css).
+    root.setAttribute('data-theme-switching', '');
+    root.dataset.theme = next;
+    paint(next);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => root.removeAttribute('data-theme-switching'));
+    });
+
+    try {
+      localStorage.setItem('theme', next);
+    } catch {
+      /* private mode — the choice just will not persist */
+    }
+  });
+
+  // Remember an explicitly chosen locale for the redirect in Base.astro.
+  document.getElementById('lang-toggle')?.addEventListener('click', (event) => {
+    const target = (event.currentTarget as HTMLElement).dataset.langTarget;
+    try {
+      if (target) localStorage.setItem('lang', target);
+    } catch {
+      /* ignore */
+    }
+  });
+</script>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 12px 28px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    font-size: 11.5px;
+    letter-spacing: 0.02em;
+  }
+
+  .prompt {
+    color: var(--dim);
+    white-space: nowrap;
+  }
+
+  .colon {
+    color: var(--teal);
+  }
+
+  .cmd {
+    color: var(--fg);
+  }
+
+  .nav {
+    display: flex;
+    gap: 22px;
+    color: var(--muted);
+  }
+
+  .nav a {
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 120ms ease;
+  }
+
+  .nav a:hover {
+    color: var(--fg);
+  }
+
+  .nav .num {
+    color: var(--mag);
+  }
+
+  .toggles {
+    display: flex;
+    gap: 8px;
+  }
+
+  .toggle {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 2px;
+    background: transparent;
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    line-height: 1.35;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  #theme-toggle {
+    /* Both labels are 6 glyphs, but the glyph widths differ; pin the width so
+       the header does not shift when the theme flips. */
+    min-width: 74px;
+    text-align: center;
+  }
+
+  .slash {
+    color: var(--faint);
+  }
+
+  /* The current locale is the one not linked to; dim it so the link reads. */
+  #lang-toggle span:not(.active):not(.slash) {
+    color: var(--fg);
+  }
+
+  #lang-toggle .active {
+    color: var(--faint);
+  }
+
+  @media (max-width: 900px) {
+    .header {
+      gap: 12px;
+      padding: 12px 20px;
+    }
+
+    .prompt {
+      display: none;
+    }
+
+    .nav {
+      gap: 14px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .nav a {
+      font-size: 11px;
+    }
+
+    .nav .path {
+      display: none;
+    }
+  }
+</style>

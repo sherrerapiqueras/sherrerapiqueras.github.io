@@ -1,0 +1,175 @@
+---
+import '@fontsource-variable/jetbrains-mono';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '../styles/global.css';
+
+import { htmlLang, shared, type Lang } from '../i18n/ui';
+import { absoluteUrl, localizedPath, otherLang, useTranslations, withBase } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const other = otherLang(lang);
+
+const canonical = absoluteUrl(lang === 'en' ? '/' : '/es/', Astro.site);
+const ogImage = absoluteUrl('/og.png', Astro.site);
+
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: shared.name,
+  alternateName: 'Sergio Herrera',
+  url: canonical,
+  email: `mailto:${shared.email}`,
+  jobTitle: lang === 'es' ? 'Ingeniero de Software' : 'Software Engineer',
+  description: t('meta.description'),
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Madrid',
+    addressCountry: 'ES',
+  },
+  sameAs: [shared.linkedin, shared.github],
+  knowsLanguage: ['es', 'en'],
+  knowsAbout: [
+    'Java',
+    'Kotlin',
+    'Spring Boot',
+    'Microservices',
+    'Google Cloud Platform',
+    'Amazon Web Services',
+    'Kubernetes',
+    'Terraform',
+    'React',
+    'Android',
+    'Jetpack Compose',
+  ],
+  worksFor: {
+    '@type': 'Organization',
+    name: 'Grupo TECDATA Engineering',
+  },
+  alumniOf: {
+    '@type': 'CollegeOrUniversity',
+    name: 'Universidad de Castilla-La Mancha',
+  },
+};
+
+/*
+ * Honours an explicitly chosen locale on return visits to the English page.
+ * Only fires when the visitor picked Spanish with the toggle — `navigator.language`
+ * is deliberately never sniffed, because auto-redirecting on browser locale hides
+ * one version from crawlers and strands anyone whose browser locale is not their
+ * reading preference. The `!location.hash` guard keeps deep links to a section on
+ * the page the visitor actually asked for.
+ */
+const localeRedirect = `try{if(localStorage.getItem('lang')==='es'&&!location.hash){location.replace(${JSON.stringify(
+  localizedPath('es'),
+)})}}catch(e){}`;
+
+const softwareLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Tempo',
+  applicationCategory: 'ProductivityApplication',
+  operatingSystem: 'Android',
+  description: t('tempo.description'),
+  url: 'https://github.com/mandrecode/tempo',
+  codeRepository: 'https://github.com/mandrecode/tempo',
+  license: 'https://www.apache.org/licenses/LICENSE-2.0',
+  author: { '@type': 'Person', name: shared.name, url: canonical },
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+};
+---
+
+<!doctype html>
+<html lang={htmlLang[lang]} data-lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+
+    <title>{t('meta.title')}</title>
+    <meta name="description" content={t('meta.description')} />
+    <meta name="author" content={shared.name} />
+    <link rel="canonical" href={canonical} />
+
+    <link rel="alternate" hreflang="en" href={absoluteUrl('/', Astro.site)} />
+    <link rel="alternate" hreflang="es" href={absoluteUrl('/es/', Astro.site)} />
+    <link rel="alternate" hreflang="x-default" href={absoluteUrl('/', Astro.site)} />
+
+    <meta name="theme-color" content="#08090B" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F2F1ED" media="(prefers-color-scheme: light)" />
+
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content={shared.name} />
+    <meta property="og:title" content={t('meta.title')} />
+    <meta property="og:description" content={t('meta.description')} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={lang === 'es' ? 'es_ES' : 'en_GB'} />
+    <meta property="og:locale:alternate" content={other === 'es' ? 'es_ES' : 'en_GB'} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={t('meta.ogAlt')} />
+    <meta property="profile:first_name" content="Sergio" />
+    <meta property="profile:last_name" content="Herrera Piqueras" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={t('meta.title')} />
+    <meta name="twitter:description" content={t('meta.description')} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
+
+    {/* Applies the stored theme before first paint, so there is no flash. */}
+    <script is:inline>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem('theme');
+          root.dataset.theme =
+            stored === 'light' || stored === 'dark'
+              ? stored
+              : window.matchMedia('(prefers-color-scheme: light)').matches
+                ? 'light'
+                : 'dark';
+        } catch (e) {
+          root.dataset.theme = 'dark';
+        }
+      })();
+    </script>
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(personLd)} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(softwareLd)} />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#index">{t('a11y.skipToContent')}</a>
+    <slot />
+
+    {lang === 'en' && <script is:inline set:html={localeRedirect} />}
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 20;
+    padding: 10px 16px;
+    /* --magFill, not --mag: white text sits on this. See global.css. */
+    background: var(--magFill);
+    color: var(--onMag);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+  }
+
+  .skip-link:focus {
+    left: 0;
+  }
+</style>

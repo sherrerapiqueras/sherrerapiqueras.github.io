@@ -1,0 +1,237 @@
+---
+import HeroCanvas from './HeroCanvas.astro';
+import { shared, type Lang } from '../i18n/ui';
+import { useTranslations, withBase } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const boot = [
+  { state: 'ok', text: t('boot.1') },
+  { state: 'ok', text: t('boot.2') },
+  { state: 'ok', text: t('boot.3') },
+  { state: 'open', text: t('boot.4') },
+] as const;
+
+const cvHref = withBase('/assets/cv_sergio_herrera_es.pdf');
+---
+
+<section id="index" class="hero">
+  <HeroCanvas />
+
+  <div class="inner">
+    <div class="boot">
+      {
+        boot.map((line) => (
+          <div>
+            <span class:list={['state', line.state]}>[ {line.state} ]</span> {line.text}
+          </div>
+        ))
+      }
+    </div>
+
+    <h1 class="name">
+      {shared.displayName[0]}<br />{shared.displayName[1]}<span class="caret" aria-hidden="true"
+      ></span>
+    </h1>
+
+    <p class="role">
+      <span>{shared.role}</span>
+      <span class="sep" aria-hidden="true">/</span>
+      <span class="remote">{shared.remote}</span>
+      <span class="sep" aria-hidden="true">/</span>
+      <span class="location">{shared.location}</span>
+    </p>
+
+    <p class="pitch">{t('hero.pitch')}</p>
+
+    <div class="ctas">
+      <a class="cta-primary" href="#contact">{t('hero.ctaPrimary')}</a>
+      <a
+        class="cta-secondary bordered"
+        href={cvHref}
+        download
+        type="application/pdf"
+        aria-label={t('hero.ctaSecondaryLabel')}>{t('hero.ctaSecondary')}</a
+      >
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding: 76px var(--page-pad) 60px;
+    scroll-margin-top: var(--header-h);
+  }
+
+  .inner {
+    position: relative;
+  }
+
+  /* ------------------------------------------------------------- boot --- */
+
+  .boot {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 40px;
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--dim);
+  }
+
+  .state.ok {
+    color: var(--teal);
+  }
+
+  .state.open {
+    color: var(--mag);
+  }
+
+  /* ------------------------------------------------------------- name --- */
+
+  .name {
+    font-size: 118px;
+    font-weight: 800;
+    line-height: 0.86;
+    letter-spacing: -0.055em;
+    color: var(--fg);
+    text-wrap: nowrap;
+  }
+
+  .caret {
+    display: inline-block;
+    width: 52px;
+    height: 88px;
+    margin-left: 16px;
+    vertical-align: -6px;
+    background: var(--mag);
+    animation: blink 1.1s steps(1) infinite;
+  }
+
+  @keyframes blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .caret {
+      animation: none;
+      opacity: 1;
+    }
+  }
+
+  /* ------------------------------------------------------------- role --- */
+
+  .role {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 14px;
+    margin-top: 30px;
+    font-size: 14px;
+    letter-spacing: 0.16em;
+    color: var(--teal);
+  }
+
+  .role .sep {
+    color: var(--faint);
+  }
+
+  .role .remote {
+    color: var(--fg);
+    border-bottom: 2px solid var(--mag);
+  }
+
+  .role .location {
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+
+  /* ------------------------------------------------------------ pitch --- */
+
+  .pitch {
+    max-width: 620px;
+    margin-top: 22px;
+    font-family: var(--font-prose);
+    font-size: 14.5px;
+    line-height: 1.75;
+    color: var(--muted);
+    text-wrap: pretty;
+  }
+
+  /* ------------------------------------------------------------- ctas --- */
+
+  .ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 34px;
+    font-size: 12.5px;
+  }
+
+  .cta-primary,
+  .cta-secondary {
+    padding: 12px 20px;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+  }
+
+  /* --magFill, not --mag: white text sits on this. See global.css. */
+  .cta-primary {
+    background: var(--magFill);
+    color: var(--onMag);
+    font-weight: 700;
+    transition: background-color 120ms ease;
+  }
+
+  .cta-primary:hover {
+    background: var(--magFill-hover);
+  }
+
+  .cta-secondary {
+    color: var(--fg2);
+  }
+
+  /* ------------------------------------------------------ responsive --- */
+
+  @media (max-width: 900px) {
+    .hero {
+      padding-top: 48px;
+      padding-bottom: 44px;
+    }
+
+    .name {
+      font-size: 14vw;
+    }
+
+    .caret {
+      width: 6vw;
+      height: 10.5vw;
+      margin-left: 2vw;
+      vertical-align: -0.7vw;
+    }
+
+    .boot {
+      margin-bottom: 30px;
+      font-size: 11.5px;
+    }
+
+    .role {
+      gap: 10px;
+      font-size: 12.5px;
+    }
+  }
+</style>

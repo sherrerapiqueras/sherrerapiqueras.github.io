@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, ready_for_review, reopened]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  verify:
+    name: 🔍 Verify
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Type-check and validate templates
+        run: npm run check
+
+      - name: Build
+        env:
+          # Lifts the unauthenticated GitHub API rate limit for the build-time
+          # release fetch. Read-only, and it never reaches the client bundle.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run build
+
+      - name: Verify the build produced both locales
+        run: |
+          missing=0
+          for f in dist/index.html dist/es/index.html dist/sitemap-index.xml; do
+            if [ ! -f "$f" ]; then
+              echo "::error::expected build output missing: $f"
+              missing=1
+            fi
+          done
+          exit $missing
+
+      - name: Verify no build-time secret leaked into the client bundle
+        run: |
+          if grep -rIl --exclude-dir=_astro-cache -e 'ghp_' -e 'github_pat_' dist/ 2>/dev/null; then
+            echo "::error::a GitHub token appears in the built output"
+            exit 1
+          fi
+          echo "No token material found in dist/"

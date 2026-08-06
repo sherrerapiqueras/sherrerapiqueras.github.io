@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Hero from './Hero.astro';
+import StatBand from './StatBand.astro';
+import Marquee from './Marquee.astro';
+import Projects from './Projects.astro';
+import Stack from './Stack.astro';
+import Contact from './Contact.astro';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<Base lang={lang}>
+  <div class="shell">
+    <Header lang={lang} />
+    <main>
+      <Hero lang={lang} />
+      <StatBand lang={lang} />
+      <Marquee />
+      <Projects lang={lang} />
+      <Stack lang={lang} />
+      <Contact lang={lang} />
+    </main>
+  </div>
+</Base>
+
+<style>
+  /* Content is capped at 1120px and centred; the bands are full-bleed inside it. */
+  .shell {
+    max-width: var(--page-max);
+    margin-inline: auto;
+  }
+</style>

@@ -1,0 +1,177 @@
+---
+import { shared, type Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const credentials = [
+  'AWS Solutions Architect',
+  'ITIL Foundation',
+  t('stack.msc'),
+  t('stack.languages'),
+];
+---
+
+<section id="stack" class="section stack">
+  <div class="heading-row">
+    <span class="num">03</span>
+    <h2>{t('stack.heading')}</h2>
+    <span class="rule" aria-hidden="true"></span>
+  </div>
+
+  <div class="blocks">
+    {
+      shared.stack.map((block) => (
+        <div class="block">
+          <div class="block-label">{block.label}</div>
+          <p class="block-lines">
+            {block.lines[0]}
+            <br />
+            {block.lines[1]}
+          </p>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="columns">
+    <div>
+      <div class="col-label" id="shipped-label">{t('stack.shipped')}</div>
+      <ul class="employers" aria-labelledby="shipped-label">
+        {
+          shared.employers.map((employer) => (
+            <li>
+              <span class:list={{ current: employer.current }}>
+                {employer.name}
+                {employer.current && (
+                  <>
+                    {' '}
+                    <span class="marker" aria-hidden="true">
+                      ●
+                    </span>
+                    <span class="visually-hidden"> — {t('stack.current')}</span>
+                  </>
+                )}
+              </span>
+              <span class="years">{employer.years}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div>
+      <div class="col-label" id="credentials-label">{t('stack.credentials')}</div>
+      <ul class="credentials" aria-labelledby="credentials-label">
+        {credentials.map((item) => <li class="bordered">{item}</li>)}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .heading-row {
+    margin-bottom: 24px;
+  }
+
+  .blocks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+
+  .block {
+    background: var(--bg);
+    padding: 20px 22px;
+  }
+
+  .block-label {
+    margin-bottom: 10px;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--teal);
+  }
+
+  .block-lines {
+    font-family: var(--font-prose);
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--fg2);
+  }
+
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 44px;
+    margin-top: 34px;
+  }
+
+  .col-label {
+    margin-bottom: 12px;
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    color: var(--faint);
+  }
+
+  .employers {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+  }
+
+  .employers li {
+    display: flex;
+    justify-content: space-between;
+    gap: 11px;
+  }
+
+  .employers .current {
+    font-weight: 700;
+  }
+
+  .employers .marker {
+    color: var(--mag);
+  }
+
+  .employers .years {
+    color: var(--dim);
+    white-space: nowrap;
+  }
+
+  .credentials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .credentials li {
+    padding: 6px 10px;
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 900px) {
+    .blocks,
+    .columns {
+      grid-template-columns: 1fr;
+    }
+
+    .columns {
+      gap: 34px;
+    }
+  }
+</style>

@@ -1,0 +1,78 @@
+---
+import { shared } from '../i18n/ui';
+
+/**
+ * The keyword list is rendered twice inside a `width: max-content` row and
+ * translated by -50%, so the loop is seamless. The duplicate is decorative,
+ * and the whole strip is hidden from assistive tech — every keyword in it also
+ * appears in the Stack section as real content.
+ */
+const { marquee } = shared;
+---
+
+<div class="ticker" aria-hidden="true">
+  <div class="track">
+    {
+      [0, 1].map(() => (
+        <span class="run">
+          {marquee.map((word) => (
+            <>
+              {word}
+              <span class="diamond">◆</span>
+            </>
+          ))}
+        </span>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .ticker {
+    overflow: hidden;
+    background: var(--surface);
+    border-block: 1px solid var(--line);
+  }
+
+  .track {
+    display: flex;
+    width: max-content;
+    padding: 11px 0;
+    animation: tick 34s linear infinite;
+  }
+
+  .run {
+    display: flex;
+    gap: 26px;
+    padding-right: 26px;
+    font-size: 11.5px;
+    letter-spacing: 0.22em;
+    color: var(--dim);
+    white-space: nowrap;
+  }
+
+  .diamond {
+    color: var(--mag);
+  }
+
+  @keyframes tick {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .track {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .ticker {
+      display: none;
+    }
+  }
+</style>

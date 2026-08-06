@@ -1,0 +1,30 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release-please:
+    name: 🏷️ Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      # Unlike Tempo, this uses the default GITHUB_TOKEN rather than a GitHub
+      # App token. The trade-off: pushes made by release-please do not trigger
+      # other workflows, so the release commit will not itself fire a deploy.
+      # That is fine here — the deploy runs on the merge of the release PR,
+      # which is a normal push to main.
+      - uses: googleapis/release-please-action@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}

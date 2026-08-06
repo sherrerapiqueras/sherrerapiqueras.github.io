@@ -1,0 +1,366 @@
+---
+import { Picture } from 'astro:assets';
+import { shared, type Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
+import type { ResolvedProject } from '../lib/projects';
+
+interface Props {
+  project: ResolvedProject;
+  lang: Lang;
+}
+
+const { project, lang } = Astro.props;
+const t = useTranslations(lang);
+const { data } = project;
+const { metaLabels, screenshotCaptions } = shared;
+
+const meta = [
+  { label: metaLabels.license, value: project.license, field: null },
+  { label: metaLabels.releases, value: String(data.releaseCount), field: 'releaseCount' },
+  { label: metaLabels.lastShip, value: data.lastShip, field: 'lastShip' },
+  { label: metaLabels[project.extraMeta.labelKey], value: project.extraMeta.value, field: null },
+];
+---
+
+<article class="card" data-project={project.slug}>
+  <div class="split">
+    <div class="main">
+      <div class="title-row">
+        <h3>{project.name}</h3>
+        <span class="version" data-field="version">v{data.version}</span>
+        <span class="status">
+          <span class="dot" aria-hidden="true"></span>{t('projects.status.active')}
+        </span>
+      </div>
+
+      <p class="description">{t(project.descriptionKey)}</p>
+
+      <ul class="tech">
+        {project.tech.map((chip) => <li class="bordered">{chip}</li>)}
+      </ul>
+
+      <dl class="meta">
+        {
+          meta.map((cell) => (
+            <div class="meta-cell">
+              <dt>{cell.label}</dt>
+              <dd data-field={cell.field}>{cell.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <div class="log">
+        <div class="log-label" id={`log-${project.name}`}>{metaLabels.releaseLog}</div>
+        <ul class="log-rows" data-release-log aria-labelledby={`log-${project.name}`}>
+          {
+            data.releases.map((release) => (
+              <li>
+                <span class="tag">{release.tag}</span>
+                <span class="date">
+                  <time datetime={release.date}>{release.date}</time>
+                </span>
+                <span class="note">{release.note}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="links">
+        <a class="link bordered" href={project.links.github} rel="noopener">github ↗</a>
+        <a class="link bordered" href={project.links.changelog} rel="noopener">changelog ↗</a>
+        {
+          project.links.playStore ? (
+            <a class="link bordered" href={project.links.playStore} rel="noopener">
+              {t('projects.playStore')} ↗
+            </a>
+          ) : (
+            <span class="link disabled" aria-disabled="true" title={t('projects.playStoreTitle')}>
+              {t('projects.playStore')}
+              <span class="soon">{t('projects.soon')}</span>
+            </span>
+          )
+        }
+      </div>
+    </div>
+
+    <div class="shots">
+      {
+        project.screenshots.map((shot, index) => (
+          <figure class:list={['shot', { offset: shot.offset }]}>
+            <figcaption>{screenshotCaptions[shot.captionKey]}</figcaption>
+            <Picture
+              src={shot.src}
+              formats={['avif', 'webp']}
+              densities={[1, 2]}
+              width={168}
+              alt={t(shot.altKey)}
+              loading={index === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+            />
+          </figure>
+        ))
+      }
+    </div>
+  </div>
+</article>
+
+<style>
+  .card {
+    border: 1px solid var(--line);
+    background: var(--surface);
+  }
+
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+  }
+
+  .main {
+    padding: 34px 34px 30px;
+    border-right: 1px solid var(--line);
+  }
+
+  /* ------------------------------------------------------------ title --- */
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .title-row h3 {
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  .version {
+    padding: 3px 8px;
+    border: 1px solid var(--tealBd);
+    background: var(--tealBg);
+    color: var(--teal);
+    font-family: var(--font-prose);
+    font-size: 12px;
+  }
+
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--teal);
+  }
+
+  .description {
+    max-width: 440px;
+    margin-top: 16px;
+    font-family: var(--font-prose);
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--muted);
+    text-wrap: pretty;
+  }
+
+  /* ------------------------------------------------------------- tech --- */
+
+  .tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 20px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tech li {
+    padding: 4px 8px;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  /* ------------------------------------------------------------- meta --- */
+
+  .meta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    margin: 26px 0 0;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+
+  .meta-cell {
+    background: var(--surface);
+    padding: 12px 14px;
+  }
+
+  .meta dt {
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    color: var(--faint);
+  }
+
+  .meta dd {
+    margin: 5px 0 0;
+    font-size: 13px;
+  }
+
+  /* -------------------------------------------------------------- log --- */
+
+  .log {
+    margin-top: 26px;
+  }
+
+  .log-label {
+    margin-bottom: 10px;
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    color: var(--faint);
+  }
+
+  .log-rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .log-rows li {
+    display: grid;
+    grid-template-columns: 74px 96px 1fr;
+    gap: 12px;
+    align-items: baseline;
+    padding: 8px 0;
+    border-top: 1px solid var(--hair);
+    font-size: 12px;
+  }
+
+  .log-rows .tag {
+    color: var(--mag);
+  }
+
+  .log-rows .date {
+    font-size: 11px;
+    color: var(--faint);
+  }
+
+  .log-rows .note {
+    font-family: var(--font-prose);
+    color: var(--muted);
+  }
+
+  /* ------------------------------------------------------------ links --- */
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+    font-size: 12px;
+  }
+
+  .link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 15px;
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  a.link:hover {
+    text-decoration: underline;
+  }
+
+  /* Not a link, not focusable, and deliberately inert on hover. */
+  .link.disabled {
+    border: 1px dashed var(--line);
+    color: var(--faint);
+    cursor: not-allowed;
+  }
+
+  .soon {
+    padding: 2px 6px;
+    border: 1px solid var(--tealBd);
+    background: var(--tealBg);
+    color: var(--teal);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+  }
+
+  /* ------------------------------------------------------------ shots --- */
+
+  .shots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 26px;
+    background: var(--sunk);
+  }
+
+  .shot {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+  }
+
+  .shot.offset {
+    margin-top: 36px;
+  }
+
+  .shot figcaption {
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    color: var(--faint);
+  }
+
+  .shot :global(img) {
+    width: 168px;
+    height: auto;
+    border: 1px solid var(--line);
+  }
+
+  /* ------------------------------------------------------- responsive --- */
+
+  @media (max-width: 900px) {
+    .split {
+      grid-template-columns: 1fr;
+    }
+
+    .main {
+      padding: 24px 20px;
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .title-row h3 {
+      font-size: 32px;
+    }
+
+    .meta {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .log-rows li {
+      grid-template-columns: 68px 1fr;
+      row-gap: 4px;
+    }
+
+    .log-rows .note {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

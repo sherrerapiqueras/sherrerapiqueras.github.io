@@ -1,0 +1,40 @@
+version: 2
+updates:
+  # 1. Site dependencies (npm)
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Europe/Madrid'
+    open-pull-requests-limit: 10
+    groups:
+      astro:
+        patterns:
+          - 'astro'
+          - '@astrojs/*'
+      fonts:
+        patterns:
+          - '@fontsource*'
+      tooling:
+        patterns:
+          - 'prettier'
+          - 'prettier-plugin-*'
+          - 'typescript'
+          - 'sharp'
+    commit-message:
+      prefix: 'build'
+      include: 'scope'
+
+  # 2. CI/CD workflows (GitHub Actions)
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+    commit-message:
+      prefix: 'ci'

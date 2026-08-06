@@ -1,0 +1,134 @@
+---
+import { shared, type Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
+// release-please bumps this on every release, so the footer version is never
+// edited by hand.
+import pkg from '../../package.json';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const year = new Date().getFullYear();
+const version = pkg.version;
+---
+
+<section id="contact" class="section contact">
+  <div class="heading-row">
+    <span class="num">04</span>
+    <h2>{t('contact.heading')}</h2>
+    <span class="rule" aria-hidden="true"></span>
+  </div>
+
+  <div class="slab">
+    <div>
+      <div class="prompt">{shared.prompt}:~$ {t('contact.command')}</div>
+      <a class="email" href={`mailto:${shared.email}`}>{shared.email}</a>
+    </div>
+
+    <div class="socials">
+      <a href={shared.linkedin} rel="me noopener">linkedin/sherrerapiqueras ↗</a>
+      <a href={shared.github} rel="me noopener">github/sherrerapiqueras ↗</a>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <span>© {year} {shared.name}</span>
+    <span>
+      portfolio v{version} · <a href={shared.repo} rel="noopener">{t('footer.repo')}</a>
+    </span>
+  </footer>
+</section>
+
+<style>
+  .contact {
+    padding-bottom: 44px;
+  }
+
+  .heading-row {
+    margin-bottom: 24px;
+  }
+
+  .slab {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    padding: 38px 40px;
+    /* --magFill, not --mag: white text sits on this. See global.css. */
+    background: var(--magFill);
+    color: var(--onMag);
+  }
+
+  .prompt {
+    margin-bottom: 12px;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    opacity: 0.85;
+  }
+
+  .email {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .email:hover {
+    text-decoration: underline;
+  }
+
+  .socials {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12.5px;
+    text-align: right;
+  }
+
+  .socials a {
+    text-decoration: none;
+  }
+
+  .socials a:hover {
+    text-decoration: underline;
+  }
+
+  /* On the magenta slab the focus ring must not be teal-on-magenta. */
+  .slab :where(a):focus-visible {
+    outline-color: var(--onMag);
+  }
+
+  .footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 16px;
+    font-size: 10.5px;
+    color: var(--faint);
+  }
+
+  .footer a {
+    color: var(--muted);
+  }
+
+  @media (max-width: 900px) {
+    .slab {
+      padding: 28px 24px;
+      gap: 22px;
+    }
+
+    .email {
+      font-size: 22px;
+    }
+
+    .socials {
+      text-align: left;
+    }
+  }
+</style>

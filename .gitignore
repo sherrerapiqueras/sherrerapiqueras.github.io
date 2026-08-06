@@ -1,0 +1,32 @@
+# Build output
+dist/
+.astro/
+
+# Dependencies
+node_modules/
+
+# Generated at build time from the GitHub API
+src/data/releases.generated.json
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local agent settings (launch.json is shared, settings.local.json is not)
+.claude/settings.local.json
+
+# OS / editor
+.DS_Store
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+
+# macOS Finder
+.Spotlight-V100
+.Trashes

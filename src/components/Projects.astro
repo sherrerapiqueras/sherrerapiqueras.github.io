@@ -1,0 +1,133 @@
+---
+import ProjectCard from './ProjectCard.astro';
+import type { Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
+import { resolveProjects } from '../lib/projects';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const projects = await resolveProjects();
+const tracked = String(projects.length).padStart(2, '0');
+---
+
+<section id="projects" class="section projects">
+  <div class="heading-row">
+    <span class="num">02</span>
+    <h2>{t('projects.heading')}</h2>
+    <span class="rule" aria-hidden="true"></span>
+    <span class="aside">registry · {tracked} {t('projects.tracked')}</span>
+  </div>
+
+  <p class="note">{t('projects.note')}</p>
+
+  {projects.map((project) => <ProjectCard project={project} lang={lang} />)}
+
+  {/* Delete this slot once there are two or more real projects. */}
+  <div class="pending">
+    <span><span class="tag">[ pending ]</span> {t('projects.pending')}</span>
+    <span aria-hidden="true">—</span>
+  </div>
+</section>
+
+<script>
+  import { toReleaseData } from '../lib/github';
+
+  /**
+   * Progressive refresh. The build already baked in the correct data, so this
+   * only matters for someone sitting on the page when a release lands. Any
+   * failure — rate limit, offline, blocked — silently leaves the built-in data
+   * alone, which is why there is no spinner and no error state.
+   */
+  async function refresh(card: HTMLElement) {
+    const slug = card.dataset.project;
+    if (!slug) return;
+
+    const res = await fetch(`https://api.github.com/repos/${slug}/releases?per_page=100`, {
+      headers: { Accept: 'application/vnd.github+json' },
+    });
+    if (!res.ok) return;
+
+    const data = toReleaseData(await res.json());
+    if (!data) return;
+
+    const set = (field: string, value: string) => {
+      const el = card.querySelector<HTMLElement>(`[data-field="${field}"]`);
+      if (el && el.textContent !== value) el.textContent = value;
+    };
+
+    set('version', `v${data.version}`);
+    set('lastShip', data.lastShip);
+    set('releaseCount', String(data.releaseCount));
+
+    const log = card.querySelector('[data-release-log]');
+    const template = log?.querySelector('li');
+    if (!log || !template) return;
+
+    /*
+     * Clone a server-rendered row rather than building one with createElement.
+     * Astro scopes component CSS with a generated `data-astro-cid-*` attribute
+     * that is stamped on at build time, so a freshly created <li> matches none
+     * of the styles above and renders unstyled. Cloning carries the attribute.
+     */
+    log.replaceChildren(
+      ...data.releases.map((release) => {
+        const row = template.cloneNode(true) as HTMLElement;
+        const tag = row.querySelector('.tag');
+        const time = row.querySelector('time');
+        const note = row.querySelector('.note');
+
+        if (tag) tag.textContent = release.tag;
+        if (time) {
+          time.dateTime = release.date;
+          time.textContent = release.date;
+        }
+        if (note) note.textContent = release.note;
+        return row;
+      }),
+    );
+  }
+
+  for (const card of document.querySelectorAll<HTMLElement>('[data-project]')) {
+    refresh(card).catch(() => {
+      /* keep the built-in data */
+    });
+  }
+</script>
+
+<style>
+  .projects {
+    padding-bottom: 20px;
+  }
+
+  .heading-row {
+    margin-bottom: 8px;
+  }
+
+  .note {
+    margin-bottom: 34px;
+    font-size: 11.5px;
+    color: var(--faint);
+    text-wrap: pretty;
+  }
+
+  .pending {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 14px;
+    padding: 20px 24px;
+    border: 1px dashed var(--line);
+    font-size: 12px;
+    color: var(--faint);
+  }
+
+  .pending .tag {
+    color: var(--dim);
+  }
+</style>
