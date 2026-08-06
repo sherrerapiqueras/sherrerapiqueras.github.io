@@ -60,8 +60,26 @@ jobs:
 
       - name: Verify no build-time secret leaked into the client bundle
         run: |
-          if grep -rIl --exclude-dir=_astro-cache -e 'ghp_' -e 'github_pat_' dist/ 2>/dev/null; then
-            echo "::error::a GitHub token appears in the built output"
+          # ghs_ is the prefix Actions' own GITHUB_TOKEN uses (a GitHub App
+          # installation token) — the one thing this step exists to catch.
+          # ghp_/gho_/ghu_/ghr_/github_pat_ cover the other GitHub formats,
+          # AKIA covers an AWS key pasted in by accident.
+          if grep -rIlE 'gh[pousr]_[A-Za-z0-9]{16,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}' dist/ 2>/dev/null; then
+            echo "::error::credential-shaped string found in the built output"
             exit 1
           fi
           echo "No token material found in dist/"
+
+      - name: Verify the Content-Security-Policy
+        run: npm run check:csp
+
+      - name: Verify the client bundle carries no authenticated request
+        run: |
+          # The build may read GITHUB_TOKEN; the browser must never. This
+          # catches the token-bearing code path surviving into the client
+          # bundle even when the token value itself is absent at build time.
+          if grep -rIl -e 'GITHUB_TOKEN' -e 'Authorization' -e 'process.env' dist/ 2>/dev/null; then
+            echo "::error::client output references an authenticated request path"
+            exit 1
+          fi
+          echo "Client bundle makes only unauthenticated requests"

@@ -47,6 +47,10 @@ scripts/         make-og.mjs — regenerates the social card
 7. **Radius is 0 and there are no shadows**, except header toggles (2px) and status dots (50%).
 8. **Untrusted data is rendered as text.** GitHub API output goes through `textContent` or Astro
    escaping. Never `innerHTML` / `set:html` / `eval` on fetched data. See `SECURITY.md`.
+9. **Inline scripts must stay hashable.** Bodies of `is:inline` scripts live in
+   `src/lib/inline-scripts.js`; `astro.config.mjs` hashes those exact strings for the CSP. Adding
+   build-time interpolation to one breaks the hash and the browser silently refuses to run it.
+   `npm run check:csp` catches this — run it after touching an inline script.
 
 ## Gotchas that have already bitten
 

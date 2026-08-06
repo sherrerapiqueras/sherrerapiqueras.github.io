@@ -51,6 +51,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run build
 
+      # A broken CSP hash would ship a page whose theme script the browser
+      # refuses to run, so this gates the deploy rather than only the PR.
+      - name: Verify the Content-Security-Policy
+        run: npm run check:csp
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:

@@ -15,7 +15,8 @@
     "preview": "astro preview",
     "check": "astro check",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "check:csp": "node scripts/check-csp.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
