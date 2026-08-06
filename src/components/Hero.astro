@@ -17,7 +17,8 @@ const boot = [
   { state: 'open', text: t('boot.4') },
 ] as const;
 
-const cvHref = withBase('/assets/cv_sergio_herrera_es.pdf');
+// The CV exists in both languages; serve the one matching the page.
+const cvHref = withBase(`/assets/${t('hero.cvFile')}`);
 ---
 
 <section id="index" class="hero">

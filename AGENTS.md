@@ -16,7 +16,7 @@ interactive" are not reasons.
 
 ```
 src/
-  assets/        Images processed by Astro (Tempo screenshots)
+  assets/        Images processed by Astro (Tempo screenshots, one set per locale)
   components/    One .astro per band of the page, styles scoped inside it
   i18n/          ui.ts = ALL copy, both locales · utils.ts = t(), locale + base helpers
   layouts/       Base.astro — <head>, metadata, JSON-LD, blocking theme script
@@ -31,6 +31,8 @@ scripts/         make-og.mjs — regenerates the social card
 
 1. **Copy lives in `src/i18n/ui.ts`.** Never inline a user-facing string in a component. Every key
    exists in both `en` and `es`. Strings identical in both go in `shared`, not duplicated.
+   This extends to assets: the CV and the Tempo screenshots exist per locale. If you add an asset
+   containing words, it needs both versions.
 2. **Adding a project = one entry in `PROJECTS`** (`src/lib/projects.ts`), nothing else. Every
    project entry needs a `fallback` with last-known-good data. If a change breaks the one-entry
    property, it is the wrong change.

@@ -1,4 +1,4 @@
-import type { UiKey } from '../i18n/ui';
+import type { Lang, UiKey } from '../i18n/ui';
 import { fetchReleases, type Release, type ReleaseData } from './github';
 
 /**
@@ -16,8 +16,11 @@ export interface ProjectMeta {
 }
 
 export interface ProjectScreenshot {
-  /** Path under `src/assets/`, resolved by Astro's image pipeline. */
-  src: ImageMetadata;
+  /**
+   * One image per locale — the app itself is localised, so an English visitor
+   * should not be shown Spanish UI. Resolved by Astro's image pipeline.
+   */
+  src: Record<Lang, ImageMetadata>;
   captionKey: 'dark' | 'light';
   altKey: UiKey;
   /** The light shot sits lower, per the design. */
@@ -44,8 +47,10 @@ export interface Project {
   fallback: Omit<ReleaseData, 'live'>;
 }
 
-import tempoDark from '../assets/tempo_focus_dark.png';
-import tempoLight from '../assets/tempo_routines_light.png';
+import tempoDarkEn from '../assets/tempo_focus_dark.png';
+import tempoLightEn from '../assets/tempo_routines_light.png';
+import tempoDarkEs from '../assets/tempo_focus_dark_es.png';
+import tempoLightEs from '../assets/tempo_routines_light_es.png';
 
 export const PROJECTS: Project[] = [
   {
@@ -64,8 +69,17 @@ export const PROJECTS: Project[] = [
     license: 'Apache-2.0',
     extraMeta: { labelKey: 'minSdk', value: '24' },
     screenshots: [
-      { src: tempoDark, captionKey: 'dark', altKey: 'tempo.shotDark' },
-      { src: tempoLight, captionKey: 'light', altKey: 'tempo.shotLight', offset: true },
+      {
+        src: { en: tempoDarkEn, es: tempoDarkEs },
+        captionKey: 'dark',
+        altKey: 'tempo.shotDark',
+      },
+      {
+        src: { en: tempoLightEn, es: tempoLightEs },
+        captionKey: 'light',
+        altKey: 'tempo.shotLight',
+        offset: true,
+      },
     ],
     links: {
       github: 'https://github.com/mandrecode/tempo',

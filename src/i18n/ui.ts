@@ -117,7 +117,8 @@ export const ui = {
       'Backend-heavy full-stack engineer. Java and Kotlin microservices on GCP and AWS, React on the front, and native Android on the side. I lead teams, set standards, and ship things that stay shipped.',
     'hero.ctaPrimary': '$ hire --start',
     'hero.ctaSecondary': './cv_sergio_herrera.pdf ↓',
-    'hero.ctaSecondaryLabel': 'Download CV (PDF, Spanish)',
+    'hero.ctaSecondaryLabel': 'Download CV (PDF, English)',
+    'hero.cvFile': 'cv_sergio_herrera_en.pdf',
 
     'stats.1': 'YEARS SHIPPING SOFTWARE',
     'stats.2': 'BACKEND TEAMS LED',
@@ -177,6 +178,7 @@ export const ui = {
     'hero.ctaPrimary': '$ contratar --inicio',
     'hero.ctaSecondary': './cv_sergio_herrera.pdf ↓',
     'hero.ctaSecondaryLabel': 'Descargar CV (PDF, español)',
+    'hero.cvFile': 'cv_sergio_herrera_es.pdf',
 
     'stats.1': 'AÑOS ENTREGANDO SOFTWARE',
     'stats.2': 'EQUIPOS BACKEND LIDERADOS',

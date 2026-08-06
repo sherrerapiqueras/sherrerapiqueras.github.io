@@ -91,7 +91,7 @@ const meta = [
           <figure class:list={['shot', { offset: shot.offset }]}>
             <figcaption>{screenshotCaptions[shot.captionKey]}</figcaption>
             <Picture
-              src={shot.src}
+              src={shot.src[lang]}
               formats={['avif', 'webp']}
               densities={[1, 2]}
               width={168}

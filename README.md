@@ -84,6 +84,14 @@ identical in both — paths, proper nouns, the stack block labels, the project m
 Adding a key means adding it to `en` and `es`. `t()` falls back to English for a missing key rather
 than rendering the raw key.
 
+Two assets are localised as well, since serving the wrong language would undercut the point of
+having locale routes at all:
+
+- **The CV** — `public/assets/cv_sergio_herrera_{en,es}.pdf`, selected by the `hero.cvFile` key.
+- **The Tempo screenshots** — `src/assets/tempo_*_es.png` alongside the English ones, selected by
+  `screenshots[].src[lang]` in the registry. Source of truth is
+  `mandrecode/tempo` → `distribution/screenshots/phone/phone_{en,es}_*`.
+
 ## Design
 
 The design tokens in [`src/styles/global.css`](src/styles/global.css) come from the design handoff
