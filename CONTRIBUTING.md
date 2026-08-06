@@ -18,7 +18,8 @@ npm run check            # astro check — types and templates
 npm run build            # Static build into dist/
 ```
 
-CI runs `format:check`, `check`, and `build`. All three must pass.
+`npm run verify` runs the whole gate as a single exit code — prefer it over checking each step by
+eye. CI runs the same thing.
 
 ## Workflow
 

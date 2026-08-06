@@ -10,6 +10,10 @@ import { LOCALE_REDIRECT, THEME_INIT } from './src/lib/inline-scripts.js';
  * Deriving them from the same exported strings the page embeds means an edit
  * to either script cannot leave a stale hash behind.
  */
+/**
+ * @param {string} source
+ * @returns {`sha256-${string}`} the literal form Astro's CspHash type requires
+ */
 const sha256 = (source) => `sha256-${createHash('sha256').update(source, 'utf8').digest('base64')}`;
 
 // Moving to a custom domain later is a two-line change here: set `site` to the

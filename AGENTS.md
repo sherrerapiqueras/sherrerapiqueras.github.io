@@ -142,7 +142,12 @@ body that would be perfectly valid on a 200.
 ## Before you open a PR
 
 ```bash
-npm run format && npm run check && npm test && npm run build && npm run check:csp
+npm run format   # write
+npm run verify   # format:check + check + test + build + check:csp, one exit code
 ```
+
+Use `npm run verify` rather than eyeballing each step. Reading `astro check` output by tail is
+how five type errors got committed once: the summary ends with "0 warnings / 0 hints" whether or
+not the line above it says "5 errors".
 
 Then check the result at 1280px, 900px and 600px, in both themes and both locales.

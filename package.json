@@ -18,7 +18,8 @@
     "format:check": "prettier --check .",
     "check:csp": "node scripts/check-csp.mjs",
     "test:watch": "vitest",
-    "test": "vitest run"
+    "test": "vitest run",
+    "verify": "npm run format:check && npm run check && npm test && npm run build && npm run check:csp"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

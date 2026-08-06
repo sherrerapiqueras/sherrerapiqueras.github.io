@@ -244,14 +244,17 @@ describe('fetchReleases — failure modes', () => {
   });
 
   it('sends no Authorization header when no token is present', async () => {
-    const spy = vi.fn(async () => ok([release()]));
+    // Typed params so the call tuple is inspectable rather than `[]`.
+    const spy = vi.fn(async (_url: string, _init?: RequestInit) => ok([release()]));
     vi.stubGlobal('fetch', spy);
     const previous = process.env.GITHUB_TOKEN;
     delete process.env.GITHUB_TOKEN;
     try {
       await fetchReleases('owner/no-token');
-      const headers = spy.mock.calls[0][1].headers as Record<string, string>;
+      const [, init] = spy.mock.calls[0]!;
+      const headers = init?.headers as Record<string, string>;
       expect(headers.Authorization).toBeUndefined();
+      expect(headers.Accept).toBe('application/vnd.github+json');
     } finally {
       if (previous !== undefined) process.env.GITHUB_TOKEN = previous;
     }
