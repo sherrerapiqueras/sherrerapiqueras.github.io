@@ -20,11 +20,18 @@ src/
   components/    One .astro per band of the page, styles scoped inside it
   i18n/          ui.ts = ALL copy, both locales · utils.ts = t(), locale + base helpers
   layouts/       Base.astro — <head>, metadata, JSON-LD, blocking theme script
-  lib/           projects.ts = the registry · github.ts = release fetch + fallback
+  lib/           projects.ts       the registry
+                 github.ts         release fetch + fallback (build time)
+                 refresh-releases.ts  the same data, refreshed in the browser
+                 inline-scripts.js runs before paint; hashed for the CSP
   pages/         index.astro (en) · es/index.astro (es) — both just render Page.astro
   styles/        global.css — token table, reset, shared primitives
-public/          Served verbatim: CV PDF, og.png, favicon
-scripts/         make-og.mjs — regenerates the social card
+public/          Served verbatim: CV PDFs, og.png, favicon, robots.txt
+tests/           Vitest — logic units and rendered components
+e2e/             Playwright — journeys and the axe audit
+scripts/         make-og.mjs        regenerates the social card
+                 check-csp.mjs      every inline script has a CSP hash
+                 check-upstream.mjs is a scheduled deploy worth doing?
 ```
 
 ## Hard rules
@@ -56,8 +63,8 @@ scripts/         make-og.mjs — regenerates the social card
 
 - **Astro scoped styles and runtime DOM.** Astro stamps a `data-astro-cid-*` attribute at build
   time. An element made with `document.createElement` does not have it and renders **unstyled**.
-  When client script must add markup, clone a server-rendered node. See `refresh()` in
-  `Projects.astro`.
+  When client script must add markup, clone a server-rendered node. See `refreshCard()` in
+  `src/lib/refresh-releases.ts`.
 - **Canvas sizing.** The hero canvas must re-measure on `ResizeObserver`, not `window.resize`. The
   hero changes height when the web font loads, and a window listener misses it — leaving the backing
   store at its pre-font size and letting CSS stretch it into visible smearing.
@@ -69,6 +76,10 @@ scripts/         make-og.mjs — regenerates the social card
   diamonds, employer dot, the `+` in `6+`). `--magFill` is for magenta _behind text_. Putting text
   on `--mag` in dark theme drops it to 3.5:1. If you add a magenta surface with text, use
   `--magFill`.
+- **Opacity defeats a hand-rolled contrast check.** The contact prompt had `opacity: .85`, so white
+  composited to #FADAEA on the magenta slab — 3.65:1 — while a check reading the _declared_ colour
+  reported 4.71. axe catches this; a script comparing token values does not. Trust
+  `npm run test:e2e` over arithmetic.
 - **`releaseCount` is live, not 32.** The design prototype hardcoded 32 and never refreshed it. The
   real count comes from the API.
 - **Flex containers eat whitespace between items.** The header's touch-target rules turn `.nav a`

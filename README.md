@@ -1,5 +1,8 @@
 # sherrerapiqueras.github.io
 
+[![CI](https://github.com/sherrerapiqueras/sherrerapiqueras.github.io/actions/workflows/ci.yml/badge.svg)](https://github.com/sherrerapiqueras/sherrerapiqueras.github.io/actions/workflows/ci.yml)
+[![Deploy](https://github.com/sherrerapiqueras/sherrerapiqueras.github.io/actions/workflows/deploy.yml/badge.svg)](https://github.com/sherrerapiqueras/sherrerapiqueras.github.io/actions/workflows/deploy.yml)
+
 Personal site for **Sergio Herrera Piqueras** — software engineer.
 Live at **https://sherrerapiqueras.github.io**.
 
@@ -17,6 +20,8 @@ releases, so shipping a release anywhere updates this site without a commit here
 | Fonts      | JetBrains Mono + IBM Plex Mono, self-hosted via Fontsource             |
 | Images     | Astro `<Picture>` — AVIF/WebP at 1× and 2×                             |
 | Hosting    | GitHub Pages via GitHub Actions                                        |
+| Testing    | Vitest (units + rendered components), Playwright + axe (end-to-end)    |
+| Security   | CSP with per-script hashes, generated at build time                    |
 | Versioning | release-please (Conventional Commits)                                  |
 
 There is no JavaScript framework and no client-side router. The only scripts that ship are the
@@ -29,14 +34,22 @@ npm ci
 npm run dev
 ```
 
-| Script                 | What it does                                  |
-| :--------------------- | :-------------------------------------------- |
-| `npm run dev`          | Dev server on http://localhost:4321           |
-| `npm run build`        | Static build into `dist/`                     |
-| `npm run preview`      | Serve the built output                        |
-| `npm run check`        | `astro check` — types and template validation |
-| `npm run format`       | Prettier, write                               |
-| `npm run format:check` | Prettier, verify (this is what CI runs)       |
+| Script                  | What it does                                            |
+| :---------------------- | :------------------------------------------------------ |
+| `npm run dev`           | Dev server on http://localhost:4321                     |
+| `npm run build`         | Static build into `dist/`                               |
+| `npm run preview`       | Serve the built output                                  |
+| `npm run check`         | `astro check` — types and template validation           |
+| `npm test`              | Vitest — units and rendered components                  |
+| `npm run test:e2e`      | Playwright + axe, against the production build          |
+| `npm run test:coverage` | Coverage over `src/lib` and `src/i18n`, with thresholds |
+| `npm run check:csp`     | Asserts every inline script is covered by a CSP hash    |
+| `npm run format`        | Prettier, write                                         |
+| **`npm run verify`**    | **Everything CI runs, as one exit code**                |
+| `npm run verify:all`    | `verify` plus the end-to-end suite                      |
+
+Use `npm run verify` rather than reading each step's output — `astro check` ends with
+"0 warnings / 0 hints" whether or not the line above it says "5 errors".
 
 ## Adding a project
 
@@ -69,8 +82,10 @@ The `[ pending ]` slot under the card is deliberate — it signals more work is 
    into the HTML. This is the copy that search engines and social cards see.
 2. **In the browser** the same fetch runs again and swaps in anything newer. It only matters for a
    visitor sitting on the page when a release lands.
-3. **Nightly** the deploy workflow rebuilds on a schedule, so the published HTML stays fresh even
-   with no commits.
+3. **Daily** a scheduled job compares the live site against the API and rebuilds _only if they
+   differ_ ([`scripts/check-upstream.mjs`](scripts/check-upstream.mjs)). A scheduled rebuild is an
+   unattended deploy, so doing one every night regardless would be a nightly chance to publish a
+   regression for a page that usually has not changed. Typical run: three HTTP requests, no deploy.
 
 CI passes `GITHUB_TOKEN` to the build purely to lift the rate limit. It is never exposed to the
 client — the browser fetch is unauthenticated, and CI greps `dist/` for token material as a guard.
@@ -112,23 +127,69 @@ link) has to be darker for white to pass, but `--mag` is also used for decorativ
 the section numbers, the ticker diamonds, the `+` in `6+` — where the vivid `#FF2E88` is the point
 and contrast is already fine. Splitting the token fixes the text without dulling the accent.
 
-Both themes measure zero AA failures across every text node on the page. The comment at the top of
-`global.css` records the reasoning and how to revert.
+One further deviation is not a token: the contact prompt's `opacity: .85`. At 85% the white
+composites to `#FADAEA` against the magenta slab — 3.65:1, under AA for 11px text — and any dimming
+at all falls below the threshold, so the opacity is gone rather than reduced. It was found by axe,
+not by hand: a contrast check that reads the _declared_ colour cannot see opacity compositing.
+
+Both themes measure zero AA failures across every text node on the page, and
+`npm run test:e2e` re-checks that with axe on every commit, in both themes and both locales. The
+comment at the top of `global.css` records the reasoning and how to revert.
 
 Everything else — 118px hero, −0.055em tracking, radius 0, 1px-gap grid dividers, no shadows — is
 reproduced exactly. The one content difference: `RELEASES` shows the live count (41 at time of
 writing), not the prototype's hardcoded 32.
 
+## Testing
+
+| Suite                            | Covers                                                                |
+| :------------------------------- | :-------------------------------------------------------------------- |
+| `tests/github.test.ts`           | Every way the GitHub API can fail. `fetchReleases` must never reject  |
+| `tests/refresh-releases.test.ts` | The client refresh — failures must leave the DOM byte-for-byte intact |
+| `tests/components.test.ts`       | Each `.astro` rendered and asserted: aria, hrefs, per-locale wiring   |
+| `tests/i18n.test.ts`             | Key parity across locales, locale detection, path helpers             |
+| `tests/projects.test.ts`         | Registry invariants — a half-added project fails here                 |
+| `e2e/journeys.spec.ts`           | Theme persistence, route switching, overflow, CSP, asset resolution   |
+| `e2e/accessibility.spec.ts`      | axe, both themes × both locales                                       |
+
+Coverage is measured over `src/lib` and `src/i18n` only, with thresholds enforced. Astro compiles
+`.astro` to JS with generated wrappers, so a line-coverage number there measures the compiler rather
+than the components — those are covered by asserting rendered output instead.
+
+When adding a test, check that it can actually fail: break the source, confirm it goes red, restore.
+The 403/404/500 cases originally passed with the `res.ok` check deleted, because the stubs returned
+an empty body that was rejected further down — green for the wrong reason.
+
+## Security
+
+Full detail in [`SECURITY.md`](SECURITY.md). In short:
+
+- **No secret ever reaches the client.** The build may read `GITHUB_TOKEN` to lift the API rate
+  limit; the browser fetch is unauthenticated. CI greps `dist/` for credential shapes _and_ for any
+  authenticated-request path surviving into the bundle.
+- **A CSP ships as a `<meta>`** (GitHub Pages cannot set headers) with a sha256 hash per inline
+  script — no `'unsafe-inline'`. `default-src 'none'`; the only external origin is
+  `api.github.com`. `npm run check:csp` fails if a hash goes stale or the policy is loosened.
+- **GitHub API output is untrusted input**, rendered via `textContent` or Astro escaping only.
+- **Actions are pinned by commit SHA**, so a moved tag cannot change what runs.
+
 ## Deployment
 
 Pushes to `main` build and deploy to GitHub Pages via
-[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), gated on the end-to-end suite.
 
-**One-time repo setup:**
+### Repo settings
+
+Two of these are still outstanding, and each produces a visible failure until done:
 
 1. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
-2. **Settings → Actions → General → Workflow permissions:** Read and write, and allow Actions to
-   create pull requests (release-please needs both).
+   Still on the legacy branch-based source, so a `pages-build-deployment` job tries to Jekyll-build
+   the repo on every push and fails on `.astro` frontmatter. The site is unaffected — the Actions
+   deploy publishes over it — but every push shows a red X until this is switched.
+2. **Settings → Actions → General → Workflow permissions →** _Allow GitHub Actions to create and
+   approve pull requests._
+   Without it release-please creates its branch and then fails with
+   `GitHub Actions is not permitted to create or approve pull requests`.
 3. Protect `main`: require the CI check, require a PR before merging.
 
 ## Licence
