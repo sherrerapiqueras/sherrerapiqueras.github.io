@@ -180,17 +180,18 @@ Pushes to `main` build and deploy to GitHub Pages via
 
 ### Repo settings
 
-Two of these are still outstanding, and each produces a visible failure until done:
+Both are configured. Recorded here because neither lives in version control, so a fresh clone or a
+fork would need them set again:
 
 1. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
-   Still on the legacy branch-based source, so a `pages-build-deployment` job tries to Jekyll-build
-   the repo on every push and fails on `.astro` frontmatter. The site is unaffected — the Actions
-   deploy publishes over it — but every push shows a red X until this is switched.
+   On the legacy branch source, a `pages-build-deployment` job tries to Jekyll-build the repo and
+   fails on `.astro` frontmatter — harmless to the site, since the Actions deploy publishes over it,
+   but a red X on every push.
 2. **Settings → Actions → General → Workflow permissions →** _Allow GitHub Actions to create and
    approve pull requests._
-   Without it release-please creates its branch and then fails with
-   `GitHub Actions is not permitted to create or approve pull requests`.
-3. Protect `main`: require the CI check, require a PR before merging.
+   Without it release-please creates its release branch and then cannot open the PR.
+
+Still open: protect `main` — require the CI check and a PR before merging.
 
 ## Licence
 
