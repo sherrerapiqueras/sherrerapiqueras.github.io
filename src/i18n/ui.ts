@@ -181,7 +181,7 @@ export const ui = {
     'nav.index': '/índice',
     'nav.projects': '/proyectos',
     'nav.stack': '/stack',
-    'nav.contact': '/contactos',
+    'nav.contact': '/contacto',
 
     'boot.1': 'inicio · runtime java · kotlin · node',
     'boot.2': 'montar cloud://gcp + aws',

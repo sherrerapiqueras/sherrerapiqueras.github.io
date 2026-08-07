@@ -63,13 +63,13 @@ describe('Header', () => {
     const body = text(es);
     expect(body).toContain('/índice');
     expect(body).toContain('/proyectos');
-    expect(body).toContain('/contactos');
+    expect(body).toContain('/contacto');
     expect(body).toContain('/stack'); // identical in both locales
 
     // English labels must not leak, and the ids must be untouched — translating
     // the visible label can never be allowed to break a link.
     expect(body).not.toContain('/projects');
-    expect(body).not.toContain('/contact ');
+    expect(body).not.toContain('/index');
     for (const item of shared.nav) {
       expect(es).toContain(`href="${item.href}"`);
     }
