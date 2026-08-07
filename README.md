@@ -22,7 +22,7 @@ releases, so shipping a release anywhere updates this site without a commit here
 | Hosting    | GitHub Pages via GitHub Actions                                        |
 | Testing    | Vitest (units + rendered components), Playwright + axe (end-to-end)    |
 | Security   | CSP with per-script hashes, generated at build time                    |
-| Versioning | release-please (Conventional Commits)                                  |
+| Versioning | release-please (Conventional Commits); footer shows version + commit   |
 
 There is no JavaScript framework and no client-side router. The only scripts that ship are the
 theme toggle, the hero canvas, and the release refresh — all vanilla, all a few hundred bytes.
@@ -89,6 +89,35 @@ The `[ pending ]` slot under the card is deliberate — it signals more work is 
 
 CI passes `GITHUB_TOKEN` to the build purely to lift the rate limit. It is never exposed to the
 client — the browser fetch is unauthenticated, and CI greps `dist/` for token material as a guard.
+
+## Versions and what is deployed
+
+Deploy and release are separate on purpose:
+
+- **Deploy** answers _what is live_ — every push to `main`, automatic.
+- **Release** answers _what do we call this, and what changed_ — a tag, a CHANGELOG entry and a
+  version bump, cut deliberately by merging the release PR that release-please opens.
+
+That means the version lags between releases, which is why the footer shows both:
+
+```
+portfolio v1.1.0 (a4e8c79) · see this repo ↗
+```
+
+The version names the last milestone; the commit says exactly which build you are looking at. The
+commit comes from `GITHUB_SHA` in CI, falling back to `git rev-parse` locally — see
+[`src/lib/build-info.ts`](src/lib/build-info.ts). If neither is available the label degrades to the
+version alone rather than failing the build.
+
+That module reads `node:child_process`, so it is build-time only. It is imported from `.astro`
+frontmatter, never from a component `<script>`, and CI greps the built output for node builtins to
+keep it that way.
+
+**Auto-merging the release PR is deliberately not set up.** release-please runs on the default
+`GITHUB_TOKEN`, and pushes made with that token do not trigger other workflows — so an auto-merged
+release would land the version bump without deploying it, leaving the site showing the old version
+until some unrelated push happened along. Making it work needs a GitHub App token, which is more
+secret management than a button click is worth.
 
 ## Content and translations
 

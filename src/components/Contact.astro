@@ -2,8 +2,10 @@
 import { shared, type Lang } from '../i18n/ui';
 import { useTranslations } from '../i18n/utils';
 // release-please bumps this on every release, so the footer version is never
-// edited by hand.
+// edited by hand. The commit is appended because the version only moves when a
+// release PR is merged — see src/lib/build-info.ts.
 import pkg from '../../package.json';
+import { buildLabel } from '../lib/build-info';
 
 interface Props {
   lang: Lang;
@@ -37,7 +39,8 @@ const version = pkg.version;
   <footer class="footer">
     <span>© {year} {shared.name}</span>
     <span>
-      portfolio v{version} · <a href={shared.repo} rel="noopener">{t('footer.repo')}</a>
+      portfolio {buildLabel(version)} ·
+      <a href={shared.repo} rel="noopener">{t('footer.repo')}</a>
     </span>
   </footer>
 </section>

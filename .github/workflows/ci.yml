@@ -76,6 +76,17 @@ jobs:
       - name: Verify the Content-Security-Policy
         run: npm run check:csp
 
+      - name: Verify no server-only module reached the browser
+        run: |
+          # build-info.ts reads node:child_process to resolve the commit sha.
+          # It is imported from .astro frontmatter, which runs at build time —
+          # this catches it ever being pulled into a client bundle.
+          if grep -rIlE 'child_process|from ?"node:|require\("node:' dist/ --include='*.html' --include='*.js' 2>/dev/null; then
+            echo "::error::a node builtin was bundled into the client output"
+            exit 1
+          fi
+          echo "No server-only module in the client output"
+
       - name: Verify the client bundle carries no authenticated request
         run: |
           # The build may read GITHUB_TOKEN; the browser must never. This

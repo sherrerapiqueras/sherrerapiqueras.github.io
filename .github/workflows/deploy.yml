@@ -87,6 +87,14 @@ jobs:
       - name: Verify the Content-Security-Policy
         run: npm run check:csp
 
+      - name: Verify no server-only module reached the browser
+        run: |
+          if grep -rIlE 'child_process|from ?"node:|require\("node:' dist/ --include='*.html' --include='*.js' 2>/dev/null; then
+            echo "::error::a node builtin was bundled into the client output"
+            exit 1
+          fi
+          echo "No server-only module in the client output"
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:

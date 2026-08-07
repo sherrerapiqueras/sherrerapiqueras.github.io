@@ -287,10 +287,14 @@ describe('Contact', () => {
     expect(html).toMatch(/href="[^"]*github[^"]*"[^>]*rel="me noopener"/);
   });
 
-  it('shows the package version in the footer', async () => {
+  it('shows the package version and the deployed commit in the footer', async () => {
     const html = await container.renderToString(Contact, { props: { lang: 'en' } });
     const { version } = await import('../package.json');
+    const { commitSha } = await import('../src/lib/build-info');
     expect(text(html)).toContain(`portfolio v${version}`);
+    // The version only moves on a release, so the commit is what tells a
+    // visitor which build they are actually looking at.
+    if (commitSha) expect(text(html)).toContain(`v${version} (${commitSha})`);
   });
 
   it('localises the contact prompt', async () => {
