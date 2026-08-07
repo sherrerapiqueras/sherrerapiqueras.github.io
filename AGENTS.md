@@ -133,6 +133,23 @@ npm run test:watch
   number in site copy.
 - **`projects.test.ts`** — registry invariants, so a half-added project fails here instead of
   rendering a broken card.
+- **`components.test.ts`** — every `.astro` component rendered through Astro's container API and
+  asserted on its output: aria attributes, hrefs, the disabled Play Store chip, per-locale copy and
+  screenshots, and that hostile API data comes out escaped.
+
+```bash
+npm run test:e2e      # Playwright, against the production build
+npm run test:coverage # thresholds over src/lib and src/i18n
+```
+
+`e2e/` is deliberately small — E2E rots fastest, so it only covers what nothing cheaper can: state
+surviving a reload, real route navigation, layout at real viewports, the CSP permitting the page to
+work, and the axe audit in both themes and both locales. It runs against `astro build` output, not
+the dev server, because the CSP hashes and asset URLs only exist after a build.
+
+Coverage is measured over `src/lib` and `src/i18n` only. Astro compiles `.astro` to JS with
+generated wrappers, so a line-coverage number there measures the compiler; components are covered
+by asserting their rendered output instead.
 
 When adding a test, check it can actually fail: break the source, confirm it goes red, restore.
 The 403/404/500 cases originally passed with the `res.ok` check deleted, because the stubs returned

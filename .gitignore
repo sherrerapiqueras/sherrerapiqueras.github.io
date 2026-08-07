@@ -30,3 +30,12 @@ npm-debug.log*
 # macOS Finder
 .Spotlight-V100
 .Trashes
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Coverage
+/coverage/

@@ -19,7 +19,10 @@
     "check:csp": "node scripts/check-csp.mjs",
     "test:watch": "vitest",
     "test": "vitest run",
-    "verify": "npm run format:check && npm run check && npm test && npm run build && npm run check:csp"
+    "verify": "npm run format:check && npm run check && npm test && npm run build && npm run check:csp",
+    "test:e2e": "playwright test",
+    "test:coverage": "vitest run --coverage",
+    "verify:all": "npm run verify && npm run test:e2e"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
@@ -29,6 +32,9 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@axe-core/playwright": "^4.12.1",
+    "@playwright/test": "^1.62.1",
+    "@vitest/coverage-v8": "^4.1.10",
     "happy-dom": "^20.11.1",
     "prettier": "^3.9.6",
     "prettier-plugin-astro": "^0.14.1",

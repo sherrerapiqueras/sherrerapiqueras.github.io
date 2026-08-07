@@ -50,8 +50,9 @@ describe('registry entries', () => {
       for (const shot of project.screenshots) {
         for (const lang of locales) {
           expect(shot.src[lang], `${lang} screenshot missing`).toBeTruthy();
+          // Astro appends ?origWidth=… to the resolved asset URL.
           expect(path(shot.src[lang]), `${lang} screenshot has no path`).toMatch(
-            /\.(png|jpe?g|webp|avif)$/,
+            /\.(png|jpe?g|webp|avif)(\?|$)/,
           );
         }
         // Serving one locale's screenshots to the other defeats the point of

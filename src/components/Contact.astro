@@ -63,11 +63,20 @@ const version = pkg.version;
     color: var(--onMag);
   }
 
+  /*
+   * The handoff specifies `opacity: .85` here. Dropped: at 85% the white
+   * composites to #FADAEA against the magenta slab, which is 3.65:1 — under AA
+   * for 11px text. White is 4.71:1, and any dimming at all falls below the
+   * threshold, so there is no partial version of this that passes.
+   *
+   * Worth noting how this was found: the contrast pass done by hand earlier
+   * measured the *declared* colour and read 4.71, because opacity compositing
+   * is invisible to that approach. axe catches it.
+   */
   .prompt {
     margin-bottom: 12px;
     font-size: 11px;
     letter-spacing: 0.16em;
-    opacity: 0.85;
   }
 
   .email {
