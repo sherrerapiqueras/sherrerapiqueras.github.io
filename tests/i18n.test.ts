@@ -50,6 +50,26 @@ describe('translation completeness', () => {
     }
   });
 
+  it('keeps each nav label matching the section heading it points at', () => {
+    /*
+     * The Spanish nav once read "/contactos" while the heading below said
+     * "CONTACTO". Both are defensible in isolation; together they read as a
+     * mistake. This pins them to each other in every locale.
+     */
+    const pairs: Array<[UiKey, UiKey]> = [
+      ['nav.projects', 'projects.heading'],
+      ['nav.stack', 'stack.heading'],
+      ['nav.contact', 'contact.heading'],
+    ];
+
+    for (const lang of locales) {
+      for (const [navKey, headingKey] of pairs) {
+        const navWord = ui[lang][navKey].replace(/^\//, '').toLocaleUpperCase(lang);
+        expect(navWord, `${lang}: ${navKey} vs ${headingKey}`).toBe(ui[lang][headingKey]);
+      }
+    }
+  });
+
   it('points each locale at its own CV', () => {
     expect(ui.en['hero.cvFile']).toContain('_en');
     expect(ui.es['hero.cvFile']).toContain('_es');
