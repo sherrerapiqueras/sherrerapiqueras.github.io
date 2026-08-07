@@ -54,8 +54,40 @@ describe('Header', () => {
     const html = await container.renderToString(Header, { props: { lang: 'en' } });
     for (const item of shared.nav) {
       expect(html).toContain(`href="${item.href}"`);
-      expect(html).toContain(item.path);
+      expect(text(html)).toContain(ui.en[item.labelKey]);
     }
+  });
+
+  it('translates the nav labels but never the anchors', async () => {
+    const es = await container.renderToString(Header, { props: { lang: 'es' } });
+    const body = text(es);
+    expect(body).toContain('/índice');
+    expect(body).toContain('/proyectos');
+    expect(body).toContain('/contactos');
+    expect(body).toContain('/stack'); // identical in both locales
+
+    // English labels must not leak, and the ids must be untouched — translating
+    // the visible label can never be allowed to break a link.
+    expect(body).not.toContain('/projects');
+    expect(body).not.toContain('/contact ');
+    for (const item of shared.nav) {
+      expect(es).toContain(`href="${item.href}"`);
+    }
+  });
+
+  it('marks the current locale as the selected half of the toggle', async () => {
+    // Regression: this was inverted, so the English page highlighted "ES" and
+    // looked like Spanish was already active.
+    const en = await container.renderToString(Header, { props: { lang: 'en' } });
+    const es = await container.renderToString(Header, { props: { lang: 'es' } });
+
+    const activeLabel = (html: string) => {
+      const toggle = html.match(/id="lang-toggle"[\s\S]*?<\/a>/)![0];
+      return toggle.match(/class="[^"]*active[^"]*"[^>]*>([^<]+)</)![1];
+    };
+
+    expect(activeLabel(en)).toBe('EN');
+    expect(activeLabel(es)).toBe('ES');
   });
 
   it('gives both toggles an accessible name', async () => {

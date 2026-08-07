@@ -33,11 +33,16 @@ export const shared = {
   linkedin: 'https://www.linkedin.com/in/sherrerapiqueras',
   github: 'https://github.com/sherrerapiqueras',
   repo: 'https://github.com/sherrerapiqueras/sherrerapiqueras.github.io',
+  /*
+   * The anchors are element ids and never change; the visible label is copy and
+   * lives in `ui` per locale. Keeping the two apart means translating the nav
+   * cannot break a link.
+   */
   nav: [
-    { num: '01', path: '/index', href: '#index' },
-    { num: '02', path: '/projects', href: '#projects' },
-    { num: '03', path: '/stack', href: '#stack' },
-    { num: '04', path: '/contact', href: '#contact' },
+    { num: '01', href: '#index', labelKey: 'nav.index' },
+    { num: '02', href: '#projects', labelKey: 'nav.projects' },
+    { num: '03', href: '#stack', labelKey: 'nav.stack' },
+    { num: '04', href: '#contact', labelKey: 'nav.contact' },
   ],
   marquee: [
     'JAVA',
@@ -108,6 +113,11 @@ export const ui = {
     'theme.dark': '☾ DARK',
     'theme.light': '☀ LIGHT',
 
+    'nav.index': '/index',
+    'nav.projects': '/projects',
+    'nav.stack': '/stack',
+    'nav.contact': '/contact',
+
     'boot.1': 'boot · runtime java · kotlin · node',
     'boot.2': 'mount cloud://gcp + aws',
     'boot.3': 'load 6 years of shipping software',
@@ -167,6 +177,11 @@ export const ui = {
 
     'theme.dark': '☾ DARK',
     'theme.light': '☀ LIGHT',
+
+    'nav.index': '/índice',
+    'nav.projects': '/proyectos',
+    'nav.stack': '/stack',
+    'nav.contact': '/contactos',
 
     'boot.1': 'inicio · runtime java · kotlin · node',
     'boot.2': 'montar cloud://gcp + aws',

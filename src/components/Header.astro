@@ -20,7 +20,7 @@ const other = otherLang(lang);
     {
       shared.nav.map((item) => (
         <a href={item.href}>
-          <span class="num">{item.num}</span> {item.path}
+          <span class="num">{item.num}</span> {t(item.labelKey)}
         </a>
       ))
     }
@@ -210,13 +210,25 @@ const other = otherLang(lang);
     margin-inline: 0.5ch;
   }
 
-  /* The current locale is the one not linked to; dim it so the link reads. */
-  #lang-toggle span:not(.active):not(.slash) {
+  /*
+   * The selected locale is emphasised and the other is dimmed.
+   *
+   * This was originally inverted, on the reasoning that the bright half should
+   * be the thing you can click. But a two-segment EN/ES control reads as a
+   * state indicator, not a link — so highlighting the target made it look like
+   * the other language was already active.
+   *
+   * Weight as well as colour: distinguishing the selected state by colour alone
+   * fails WCAG 1.4.1.
+   */
+  #lang-toggle .active {
     color: var(--fg);
+    font-weight: 700;
   }
 
-  #lang-toggle .active {
-    color: var(--faint);
+  #lang-toggle span:not(.active):not(.slash) {
+    color: var(--dim);
+    font-weight: 400;
   }
 
   /* Tablet: the prompt is the first thing that can go — nav and toggles are
