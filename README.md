@@ -1,6 +1,6 @@
-# portfolio
+# sherrerapiqueras.github.io
 
-Personal site for **Sergio Herrera Piqueras** — software engineer, Madrid.
+Personal site for **Sergio Herrera Piqueras** — software engineer.
 Live at **https://sherrerapiqueras.github.io**.
 
 A single static page in English and Spanish, built with Astro and deployed to GitHub Pages.
