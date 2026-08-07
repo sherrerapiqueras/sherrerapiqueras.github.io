@@ -23,6 +23,11 @@ updates:
           - 'prettier-plugin-*'
           - 'typescript'
           - 'sharp'
+    ignore:
+      # @astrojs/check peer-depends on typescript ^5 || ^6, so a v7 bump fails
+      # CI on arrival. Drop this once @astrojs/check supports TypeScript 7.
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
     commit-message:
       prefix: 'build'
       include: 'scope'

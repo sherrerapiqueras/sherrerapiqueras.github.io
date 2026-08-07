@@ -8,8 +8,6 @@
  *
  * Regenerate after any hero change:
  *   node scripts/make-og.mjs <full-page-screenshot.png>
- *
- * Defaults to the design handoff's reference render when no argument is given.
  */
 
 import { existsSync } from 'node:fs';
@@ -19,17 +17,19 @@ import sharp from 'sharp';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
-const DEFAULT_SOURCE = path.join(
-  process.env.HOME ?? '',
-  'Downloads/design_handoff_portfolio/screenshots/01-dark-en.png',
-);
-
-const source = process.argv[2] ?? DEFAULT_SOURCE;
+const source = process.argv[2];
 const out = path.join(root, 'public', 'og.png');
+
+// No default path: this is a public repo, and the previous default pointed at a
+// folder that only existed on one machine.
+if (!source) {
+  console.error('usage: node scripts/make-og.mjs <full-page-screenshot.png>');
+  console.error('Take a full-page screenshot of the site in dark theme, then pass it here.');
+  process.exit(1);
+}
 
 if (!existsSync(source)) {
   console.error(`make-og: source not found: ${source}`);
-  console.error('Pass a full-page screenshot of the site as the first argument.');
   process.exit(1);
 }
 
