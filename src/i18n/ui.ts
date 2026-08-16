@@ -139,7 +139,7 @@ export const ui = {
     'projects.heading': 'PROJECTS',
     'projects.tracked': 'tracked',
     'projects.note':
-    'version, status and release history are pulled live from the source repository — nothing here is typed by hand.',
+      'version, status and release history are pulled live from the source repository — nothing here is typed by hand.',
     'projects.pending': 'next project — registered here the moment its first tag lands',
     'projects.bridge': 'personal builds ship under',
     'projects.status.active': 'ACTIVE',
