@@ -33,6 +33,8 @@ export const shared = {
   linkedin: 'https://www.linkedin.com/in/sherrerapiqueras',
   github: 'https://github.com/sherrerapiqueras',
   repo: 'https://github.com/sherrerapiqueras/sherrerapiqueras.github.io',
+  mandrecode: 'https://github.com/mandrecode',
+  mandrecodeLabel: 'mandrecode ↗',
   /*
    * The anchors are element ids and never change; the visible label is copy and
    * lives in `ui` per locale. Keeping the two apart means translating the nav
@@ -137,8 +139,9 @@ export const ui = {
     'projects.heading': 'PROJECTS',
     'projects.tracked': 'tracked',
     'projects.note':
-      'version, status and release history are pulled live from the source repository — nothing here is typed by hand.',
+    'version, status and release history are pulled live from the source repository — nothing here is typed by hand.',
     'projects.pending': 'next project — registered here the moment its first tag lands',
+    'projects.bridge': 'personal builds ship under',
     'projects.status.active': 'ACTIVE',
     'projects.soon': 'SOON',
     'projects.playStore': 'play store',
@@ -204,6 +207,7 @@ export const ui = {
     'projects.note':
       'versión, estado e historial de releases se leen en vivo del repositorio — nada de esto se escribe a mano.',
     'projects.pending': 'siguiente proyecto — aparecerá aquí en cuanto exista su primer tag',
+    'projects.bridge': 'los proyectos personales se publican bajo',
     'projects.status.active': 'ACTIVO',
     'projects.soon': 'PRÓXIMAMENTE',
     'projects.playStore': 'play store',
