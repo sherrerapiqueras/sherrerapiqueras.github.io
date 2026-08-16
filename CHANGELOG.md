@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/sherrerapiqueras/sherrerapiqueras.github.io/compare/v1.1.0...v1.2.0) (2026-08-16)
+
+
+### Features
+
+* add mandrecode ref ([#7](https://github.com/sherrerapiqueras/sherrerapiqueras.github.io/issues/7)) ([692d2ef](https://github.com/sherrerapiqueras/sherrerapiqueras.github.io/commit/692d2ef2018946f0ec9b78da4ec0aaa2481a08cd))
+
 ## [1.1.0](https://github.com/sherrerapiqueras/sherrerapiqueras.github.io/compare/v1.0.0...v1.1.0) (2026-08-07)
 
 
