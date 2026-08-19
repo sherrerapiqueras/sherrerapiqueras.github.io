@@ -29,7 +29,7 @@ export const shared = {
   remote: 'REMOTE-FIRST',
   location: 'Madrid, ES',
   prompt: 'sherrerapiqueras@portfolio',
-  email: 'sherrerapiqueras@protonmail.com',
+  email: 'sherrerapiqueras@gmail.com',
   linkedin: 'https://www.linkedin.com/in/sherrerapiqueras',
   github: 'https://github.com/sherrerapiqueras',
   repo: 'https://github.com/sherrerapiqueras/sherrerapiqueras.github.io',
